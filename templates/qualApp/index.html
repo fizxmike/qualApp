@@ -1,0 +1,128 @@
+{% extends "qualApp/base.html" %}
+
+{% block title %}Home{% endblock %}
+{% block header %}UCSD Physics Qual App{% endblock %}
+
+{% block scripts%}
+<!--facebook script-->
+<script>
+(function(d, s, id){
+	var js, fjs = d.getElementsByTagName(s)[0];
+	if (d.getElementById(id)) return;
+	js = d.createElement(s); js.id = id;
+	js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+	fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+</script>
+<script>
+
+function initCounter(){
+	DAYS_ELEMENT = document.getElementById("days");
+	SEC_ELEMENT = document.getElementById("seconds");
+	DAYS = parseInt(DAYS_ELEMENT.innerHTML);
+	SEC = parseInt(SEC_ELEMENT.innerHTML);
+	var t = setTimeout("countdown()",1000);
+}
+
+function countdown(){
+	SEC--;
+	if(SEC == -1){
+		SEC = 3600*24-1;
+		DAYS--;
+		DAYS_ELEMENT.innerHTML = DAYS;
+	}
+	SEC_ELEMENT.innerHTML = SEC;
+	var t = setTimeout("countdown()",1000);
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<h2>There are <span id="days" style="color:darkred;">{{ days_to_qual }}</span> days and <span id="seconds" style="color:darkred;">{{ seconds_to_qual }}</span> seconds left untill the Fall 2012 qual!</h2>
+<script>/*execute!*/initCounter();</script>
+<blockquote style="width:70%">
+This web app allows users to upload qual PDFs and tag problem/solution pairs. All tagged problem/solutions pairs are searchable and are sorted by subject, level, and year. Visotors can browse quals without having to download any files; images of the qual pages are displayed directly in the browser.<br /><br />
+Registered users can submit solutions to any tagged problem/solution pair either as an image or in LaTeX format, or both. Users also have the ability to create thier own set of notes on a specific topic within a qual subject (in LaTeX format). Click "Browse quals" to get started.</blockquote>
+<h2>Main Menu</h2>
+<ul>
+<li><a href="/qualApp/quals">Browse quals</a> ({{qual_count}})</li>
+<li><a href="/qualApp/problems">Search tagged problems</a> ({{problem_count}})</li>
+<li><a href="/qualApp/solutions">Student/Alternative solutions</a> ({{solution_count}}) <span style="color:gray">updated {{solution_recent}} ago</span></li>
+<li><a href="/qualApp/notes">Student notes</a> <span style="font-weight:bold;color:red">New Feature!</span> ({{note_count}}) <span style="color:gray">updated {{note_recent}} ago</span></li>
+<li><a href="/qualApp/problems/random">View a random problem</a></li>
+<li>Mock qual (comming soon)</li>
+{% if user.is_staff %}
+<!--<li><a href="/qualApp/admin", target="_blank">Admin backend</a></li>-->
+{% endif %}
+</ul>
+
+
+{% if not user.is_authenticated %}
+<h2>New Users</h2>
+<ul>
+<li><a href="/qualApp/accounts/create/" target="_blank">Create a new account</a></li>
+</ul>
+{% else %}
+<h2>Members</h2>
+<ul>
+<li><a href="/qualApp/accounts/password/">Change password</a></li>
+<!--<li><a href="/qualApp/tag/">Tag prob</a></li>-->
+</ul>
+{% endif %}
+
+
+<h2>Social</h2>
+<blockquote>
+<!-- Place this tag where you want the +1 button to render. -->
+<div class="g-plusone" data-size="tall" data-annotation="inline" data-width="300"></div><br />
+
+<!-- Place this tag after the last +1 button tag. -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+	<div class="fb-like" data-href="http://www.facebook.com/QualApp" data-send="true" data-width="450" data-show-faces="true" data-font="verdana"></div><div id="fb-root" style="display:none;"></div>
+</blockquote>
+
+
+<h2>Instructions/Help</h2>
+<ul style="width:70%">
+	<li><strong>Browsing Problems by Qual:</strong> Click the "QUALS" link at the top of the page. Or the "Browse quals" link above. Click on a qual with tagged problems.</li>
+	<li><strong>Browsing Qual PDF pages in browser:</strong> Click the "QUALS" link at the top of the page. Or the "Browse quals" link above. Click on any qual. Then click the "Browse" button and images of each qual page will be displayed, one at a time.</li>
+	<li><strong>Keybord Shortcuts:</strong> While browsing qual problems, hold down shift key and press "h" key to see a list of keyboard shortcuts.</li>
+	<li><strong>To Login:</strong> click "login" in upper right hand corner of any qual app page.</li>
+	<li><strong>To upload a qual (members only):</strong> navigate to "quals" and click the "Add" button. Many qual PDFs can be found in the qual archive listed in the links section below.</li>
+	<li><strong>To tag a problem (members only):</strong> navigate to "quals" and click on a qual you wish to add problems to. A list of currently tagged problems for the selected qual will be shown (if any). Click "Start Tagging Problems" or "Tag More Problems" and you will be taken to the tagging system. You can also tag problems while browsing a qual PDF.</li>
+	<li><strong>To add a solution (members only):</strong> navigate to a problem you wish to add a solution to. If the problem has no user solutions attached to it, you can click the "Add Your Solution" button. If the problem has some solutions attached already, you will see the "> Solution" menu; click on the menu and select the "Add Your Solution..." item. The format of you solution can be any image file and/or some text.<strong> LaTeX/TeX and ASCIIMath are now supported as solution input!</strong></li>
+	<li><strong>Problem Subjects:</strong> You will see problems labeled with tree letters like UCM or GMM. The first letter refers to the day/level of the problem being:
+	<ul>
+		<li>U = Undergraduate/first day</li>
+		<li>G = Graduate/second day</li>
+	</ul>
+	The remaining two letters denote the section or problem type as being one of the following:<br />
+	<ul>
+		<li>CM = Classical Mechanics</li>
+		<li>EM = Electricity and Magnetism</li>
+		<li>QM = Quantum Mechanics</li>
+		<li>SM = Statistical Mechanics/Thermodynamics</li>
+		<li>MM = Mathematical Methods/Physical Estimates (other)</li>
+	</ul>
+	<li><strong>Notes on problem topics:</strong> many topics exist within any given subject. When you are entering topic information for a problem, try to stick to the key words used in class. Feel free to edit existing problem topics to better represent the problem material. In the future we could add more specific topic tags.</li>
+	<li><strong>About problem search feature:</strong> Any text entered in the search box on the problems page will be matched with the topic text (as tagged). If you check the box for "Full Text" the first 2000 characters on the qual PDF page associated with the problem (if extratable) will be matched as also. Currently the library used to extract the characters from the PDF omits spaces. If you want more of your searches to actually match the qual problem PDF text, omit spaces when searching, and search for only one or two words at a time. Seaching the PDF text is an experimental feature and may not match exactly to the problem displayed since some quals list more than one problem/solution per page. This may improve in the future.</li>
+	<li><strong>More Help: </strong> <a href="http://code.google.com/p/ucsd-physics-qual-prep/issues/entry" target="_blank">Report a problem</a> (requires Google account). {% if user.is_authenticated %} <a href="mailto:mfolkerts@physics.ucsd.edu?Subject=[QualApp] Problem">Email administrator</a> with suggestions or comments.{% endif %}</li>
+</ul>
+<h2>Links</h2>
+<ul>
+	<li><a href="http://jonathanwhitmore.com/physics/physics-quals" target="_blank">Jonathan Whitmore's UCSD Physics Qual PDF Archive</a></li>
+	<li><a href="http://ucsdquals.wikidot.com/start" target="_blank">UCSD Physics Qual wikidot page</a></li>
+	<li><a href="http://code.google.com/p/ucsd-physics-qual-prep/" target="_blank">Qual App - Google code project</a></li>
+	<li><a href="http://physics.ucsd.edu" target="_blank">UCSD Physics Department</a></li>
+</ul>
+<h2>Credits</h2>
+<ul>
+	<li>The Qual App was developed by <a href="http://bit.ly/folkerts" target="_blank">Michael Folkerts</a> (2010 class) using <a href='https://www.djangoproject.com/' target="_blank">Python-Django</a> v1.3.</li>
+</ul>
+{% endblock %}

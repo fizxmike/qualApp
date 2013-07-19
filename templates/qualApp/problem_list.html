@@ -1,0 +1,40 @@
+{% extends "qualApp/base.html" %}
+
+{% block title %}Tagged Problems{% endblock %}
+{% block header %}All Tagged Problems With Solutions{% endblock %}
+
+{% block actions %}
+<fieldset>
+	<legend>Sort</legend>
+	<a href="../problems">Recent</a>
+	<a href="byLevel">By Level</a>
+	<a href="bySubject">By Subject</a>
+</fieldset>
+	<form id="search_form" method="GET" action="search" style="display:inline;"><input name="q" type="text" value="{{request.GET.q}}" />
+	<input name="fullText" type="checkbox" {%if request.GET.fullText%} checked="checked" {%endif%}/>Full Text (Beta) <a onclick="document.forms['search_form'].submit();">Search</a></form>
+	<a href="/qualApp/problems/random">Random</a>
+	<!--, <a href="../../admin/qualApp/problem/add">Add Problem</a>-->
+{%endblock%}
+
+{% block content %}
+{% if problem_list %}
+	<table>
+	<tr><th>Level/Day</th><th>Qual</th><th>Subject</th><th>Topic/Short Description</th></tr>
+	{% for problem in problem_list %}
+		<tr class="clickable" onclick="window.location={{ problem.id }};">
+			<td style="text-align:center;">{{ problem.level }}</td>
+			<td style="text-align:center;">{{ problem.qual }}</td>
+			<td style="text-align:center;">{{ problem.subject }}</td>
+			<td><a href="{{ problem.id }}/">{{ problem.topic }}</a></td>
+		</tr>
+	{% endfor %}
+	</table>
+{% else %}
+	{%if request.GET.q %}
+	<p>Your search for &quot;<strong>{{ request.GET.q }}</strong>&quot; in problem topics had no results.</p>
+    {%else%}
+    <p>No problems have been registered.</p>
+    {%endif%}
+{% endif %}
+
+{% endblock %}

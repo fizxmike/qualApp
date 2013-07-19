@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<!--meta name="viewport" content="width=device-width, initial-scale=1"-->  
+<meta name="viewport" content="width=640px, initial-scale=1">  
+<title>UCSD PhysQualApp | {% block title %}{% endblock %}</title>
+
+<script type="text/javascript">
+//google analytics
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33568547-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+{% block scripts %}{% endblock %}
+
+<style type="text/css" media="print">
+
+h1, h1 a{
+	font-size:110%;
+	text-decoration:none;
+	font-weight:bold;
+	color:black;
+	display:inline;
+	width:auto;
+}
+h2 {display:none;}
+h3 {font-size:100%;}
+
+#navigation, .actions, .no_print{
+	display:none;
+}
+
+#page_image{	
+	position:relative;
+	display:block;
+	margin-left:auto;
+	margin-right:auto;
+}
+#page_div{
+	width:auto;
+	padding:25px 0px;
+}
+/*#page_div{
+	/*position:relative;top:0px;left0px;*/
+	/*min-height:1100px*/
+}
+*/
+</style>
+
+<style type="text/css" media="screen">
+
+/*@viewport {
+	width:device-width;
+	initial-scale:1.0;
+	orientation: landscape;
+}
+
+@media screen and (width: 397px) {
+  @viewport {
+    width: 500px;
+  }
+}
+*/
+
+body{
+	font-size:90%;
+	font-family:verdana,arial,'sans serif';
+
+	background-color:WhiteSmoke;
+	color:Black;
+
+	margin-top:50px;
+	margin-left:36px;
+	margin-right:36px;
+	margin-bottom:36px;
+}
+
+table{
+	border-collapse:collapse;
+}
+
+table, td, th{
+	border-bottom:1px solid DimGray;
+	border-top:1px solid DimGray;
+}
+
+td, th{
+	padding:5px 10px;
+}
+
+th{
+	font-variant:small-caps;
+	color:DimGray;
+}
+
+tr.clickable a{
+	text-decoration:none;
+	color:black;
+}
+
+tr.clickable:hover a{
+	color:MediumBlue;
+}
+
+tr.clickable:hover{
+	background:white;
+	cursor:pointer;
+	text-decoration:underline;
+	color:MediumBlue;
+}
+
+h1{
+	font-size:180%;
+	display:inline;
+	width:auto;
+}
+h2 {font-size:140%;}
+h3 {font-size:110%;}
+
+/*th {background-color:#ADD8E6;}*/
+
+/*ul {list-style:square;}
+ol {list-style:upper-roman;}*/
+li {margin:4px;}
+a,.actions select{
+	border-radius:5px;
+	-moz-border-radius:5px; /* Firefox 3.6 and earlier */
+	cursor:pointer;
+}
+a:link {color:MediumBlue;}      /* unvisited link */
+a:visited {color:DarkBlue;}  /* visited link */
+a:hover {color:red;}  /* mouse over link */
+a:active {color:green;}  /* selected link */
+
+a.hide_visited:visited {color:MediumBlue;}
+
+
+/*TOP NAVIGATION-SYSTEM BAR*/
+#navigation{
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:100%;
+	
+	padding:5px 0px;
+	margin:0px;
+
+	font-weight:bold;
+	/*font-variant:small-caps;*/
+	text-transform:uppercase;
+
+	background:Gainsboro;/*lightgrey;*/
+
+	border-style:solid;
+	border-top-width:2px;
+	border-left-width:0px;
+	border-right-width:0px;
+	border-bottom-width:2px;
+}
+a.nav:link, a.nav:visited {
+	/* link button */
+	display:inline;
+	/*width:120px;*/
+
+	padding:5px 5px; /* top/bottm left/right */
+	margin:0px;
+
+	color:DarkBlue;
+	font-weight:bold;
+	text-decoration:none;
+	text-align:center;
+	
+	/*background-color:#DDD;*/
+}
+/* nav changes for hover */
+a.nav:hover, a.nav:active {
+	color:MediumBlue;
+	/*text-decoration:underline;*/
+
+	background-color:#EEE;
+}
+
+/* ---- action bar ---- */
+.actions{
+/*text inside action bar*/
+font-weight:bold;
+font-variant:small-caps;
+word-spacing:-2pt;
+
+/*display:inline;*/
+padding:0px;
+margin:0px;
+}
+
+.actions a{ /*action button*/
+	display:inline;
+	padding:2px 4px; /* top+bottm left+right */
+	margin:2px;
+	/*width:120px;*/
+
+	border-style:solid;
+	border-width:1px;
+	border-color:DimGrey;
+	
+	color:black;
+	font-variant:small-caps;
+	font-weight:bold;
+	text-decoration:none;
+	text-align:center;
+
+	background:lightgray;
+	
+	/*don't highligh text on double click*/
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.actions fieldset{
+	display:inline;text-align:center;
+}
+
+.actions select,.actions option{
+	
+	margin:2px;
+	padding:2px;
+	/*width:120px;*/
+
+	border-style:solid;
+	border-width:1px;
+	border-color:DimGrey;
+	
+	color:black;
+	font-variant:small-caps;
+	font-weight:bold;
+	text-decoration:none;
+	text-align:left;
+
+	background:lightgray;
+}
+
+.actions a:hover{ /*mouse-over action button*/
+	color:black;
+	background:#DDD;
+}
+
+/*-----Forms-----*/
+.error,.errorlist{
+	font-weight:bold;
+	color:red;
+}
+.required{
+	/*color:darkred;*/
+	/*font-weight:bold;*/
+}
+ul.errorlist{
+	display:inline;
+	width:auto;
+	list-style:none;
+}
+
+#page_image{	
+	position:relative;
+	display:block;
+	margin-left:auto;
+	margin-right:auto;
+}
+#page_div{
+	/*position:relative;top:0px;left0px;*/
+	padding:25px 0px;
+	max-width:850px;
+	background-color:white;
+	/*min-height:1100px*/
+}
+
+fieldset ul,fieldset ul li{
+	display:inline;
+}
+
+textarea{
+	width:850px;
+	height:380px;
+}
+</style>
+</head>
+
+<body>
+{% block navigation %}
+<div id="navigation" >
+<span style="float:left;margin-left:5px;">
+ Qual App:
+ <a class="nav" href="/qualApp/">Home</a>
+ <a class="nav" href="/qualApp/quals/">Quals</a>
+ <a class="nav" href="/qualApp/problems">Problems</a>
+ <a class="nav" href="/qualApp/solutions">Alt. Solutions</a>
+ <a class="nav" href="/qualApp/notes">Notes</a>
+</span>
+<span style="float:right;margin-right:5px;">
+{% if request.user.is_authenticated %}
+	{{ user.username }}: {% if request.user.is_staff %}<a class="nav" href="/qualApp/admin/" target="_blank">Admin</a>{% endif %}
+	<a class="nav" href="/qualApp/accounts/logout/?continue={{ request.path|urlencode:"" }}">Logout</a>
+	{% else %}
+	User: <a class="nav" href="/qualApp/accounts/login/?continue={{ request.path|urlencode:"" }}">Login</a>
+{% endif %}
+</span>
+</div>
+{% endblock %}
+<h1>{% block header %}{% endblock %}</h1>
+<div style="margin:10px 0px;padding:0px;/*height:2em;width:850px;*/" class="actions" >{% block actions %}{% endblock %}</div>
+{% block content %}{% endblock %}
+
+</body>
+</html>

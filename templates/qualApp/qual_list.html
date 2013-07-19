@@ -1,0 +1,27 @@
+{% extends "qualApp/base.html" %}
+
+{% block title %}Uploaded Quals{% endblock %}
+{% block header %}Uploaded Quals{% endblock %}
+
+
+{% block actions %}
+<a href="add">Add</a>
+{% if perms.qualApp.add_qual %}{% endif %}
+	
+{%endblock%}
+{% block content %}
+<p>
+{% if qual_list %}
+	<table>
+	<tr><th>Term and Year</th><th>Tagged Problems</th><!--th>PDF</th--></tr>
+	{% for qual in qual_list %}
+		<tr class="clickable">
+			<td onclick="window.location={{ qual.id }};"><a href="{{qual.id}}">{{ qual }}</a></td>
+			<td style="text-align:center;" onclick="window.location={{ qual.id }};">{{ qual.problem_set.count }}</td>
+			<!--td onclick="window.location='{{ qual.id }}/browse';">PDF</td--></tr>
+	{% endfor %}
+	</table>
+{% else %}
+    <p>No quals are available.</p>
+{% endif %}
+{% endblock %}

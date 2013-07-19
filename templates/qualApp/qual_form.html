@@ -1,0 +1,17 @@
+{% extends "qualApp/base.html" %}
+
+{% block scripts %}{% endblock %}
+
+{% block title %}Upload qual{% endblock %}
+
+{% block header %}Upload a new qual{% endblock %}
+
+{% block content %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form enctype="multipart/form-data" action="add" method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Submit" />
+</form>
+
+{% endblock %}

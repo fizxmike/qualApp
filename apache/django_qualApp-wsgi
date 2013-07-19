@@ -1,0 +1,29 @@
+# README: edit then copy this file (as root) into /etc/apache2/sites-avalable/
+# then (as root) do 'a2ensite django_qualApp-wsgi' and restart apache
+#
+# this is technically not a site, rather an extension of http.conf
+
+# ATTENTION: Replace all '/home/django/qualPrep' with your path to the qualPrep folder below
+
+
+#doesn't work right
+#SetEnv QUAL_APP_PATH /home/django/qualPrep
+
+Alias /files/ /home/django/qualPrep/db.files/
+#Alias /static/ /home/django/qualPrep/static/
+
+#not used:
+#<Directory /home/django/qualPrep/static>
+#Order deny,allow
+#Allow from all
+#</Directory>
+
+<Directory /home/django/qualPrep/db.files>
+Order deny,allow
+Allow from all
+</Directory>
+
+#this may be system dependent
+Alias /static/admin/ /usr/lib/python2.7/dist-packages/django/contrib/admin/media/
+
+WSGIScriptAlias /qualApp /home/django/qualPrep/apache/django.wsgi

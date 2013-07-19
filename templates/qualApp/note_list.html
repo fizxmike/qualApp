@@ -1,0 +1,35 @@
+{% extends "qualApp/base.html" %}
+
+{% block title %}Student Notes{% endblock %}
+{% block header %} 
+{%if by_user%}
+Notes by {{by_user.username|capfirst}}
+{%else%}
+All Student Notes{%endif%}
+{% endblock %}
+
+{% block actions %}
+	{% if request.user.is_authenticated %}
+	<a href="../notes">All</a>
+	<a href="user{{ request.user.id }}">My Notes</a>
+	{% endif %}
+<a href="create">Add Notes</a>
+{%endblock%}
+
+{% block content %}
+{% if note_list %}
+	<table>
+	<tr><th>User</th><th>Subject</th><th>Topic</th></tr>
+	{% for note in note_list %}	
+		<tr class="clickable" onclick="window.location='{{note.id}}/';">
+			<td><a href="user{{note.user.id}}">{{ note.user.username|capfirst }}</a></td>
+			<td style="text-align:center;">{{ note.subject }}</td>
+			<td style="text-align:center;"><a href="{{note.id}}/">{{ note.topic }}</a></td>
+		</tr>
+	{% endfor %}
+	</table>
+{% else %}
+	<p>No notes found.</p>
+{% endif %}
+
+{% endblock %}

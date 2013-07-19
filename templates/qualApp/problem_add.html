@@ -1,0 +1,19 @@
+{% extends "qualApp/base.html" %}
+
+{% block scripts %}{% endblock %}
+
+{% block title %}Add to {{ qual }}{% endblock %}
+
+{% block header %}Adding Problem to <a class="hide_visited" href="../quals/{{ qual.id }}/" target="blank">{{ qual }}</a> qual{% endblock %}
+
+
+
+{% block content %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="add?qual={{ qual.id }}" method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Submit" />
+</form>
+<p>To cancel, use your browser's back button.</p>
+{% endblock %}

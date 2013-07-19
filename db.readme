@@ -1,0 +1,7 @@
+The database has been encrypted:
+7za a -p db.7z db.sqlite3
+
+To decrypt and expand:
+7za e db.7z
+
+hint: cluster expansion

@@ -1,0 +1,262 @@
+{% extends "qualApp/base.html" %}
+
+{% block title %}{{ problem.level }}{{ problem.subject }}{{ problem.id }}{% endblock %}
+
+{% block header %}
+	<a class="hide_visited" href="../../quals/{{problem.qual.id}}">{{problem.qual}}</a>
+	{%if request.session.show_solution == "true"%} Solutions{%endif%}
+	{%if solution_user%} by <a class="hide_visited" href="../../solutions/user{{solution_user_id}}">{{solution_user|lower|capfirst}}</a>{%endif%}<br />
+	<span {%if not request.GET.sol %}class="no_print"{%endif%}>{{ problem }}</span>
+{% endblock %}
+
+{% block scripts %}
+<script>
+//listen for key shortcuts
+document.onkeydown = KeyCheck;       
+
+function fireEvent(obj,evt){
+	
+	var fireOnThis = obj;
+	if( document.createEvent ) {
+	  var evObj = document.createEvent('MouseEvents');
+	  evObj.initEvent( evt, true, false );
+	  fireOnThis.dispatchEvent(evObj);
+	} else if( document.createEventObject ) {
+	  fireOnThis.fireEvent('on'+evt);
+	}
+}
+
+function KeyCheck(e){
+/** catch keybord shortcuts **/
+	var KeyID = (window.event) ? event.keyCode : e.keyCode;
+//	var AltDown = (window.event) ? event.altKey : e.altKey;
+	var ShiftDown = (window.event) ? event.shiftKey : e.shiftKey;
+	
+	if(/*AltDown &&*/ ShiftDown){
+		switch(KeyID){
+			case 65://shift+a = trim top
+				cropMode(CROP_TYPE.ABOVE);
+				break;
+			case 90://shift+z = trim bottom
+				cropMode(CROP_TYPE.BELOW);
+				break;
+			case 83://shift+s = show solutions
+			case 40://shift+down = show solutions
+				window.location = "?show_solution=true";
+				break;
+				
+			case 88://shift+x = hide solutions
+			case 38://shift+up = hide solutions
+				window.location = "?show_solution=false";
+				break;
+			case 39://shift+right = next problem (if it exists)
+				try{
+					fireEvent(document.getElementById('next_problem'),'click');
+					//alert(href);
+				}catch(e){alert("You are viewing the last question in this qual.")}
+				break;
+			case 37://shift+left = prev problem (if it exists)
+				try{
+					fireEvent(document.getElementById('prev_problem'),'click');
+					//alert(href);
+				}catch(e){alert("You are viewing the first question in this qual.")}
+				break;
+			case 82:
+				window.location="../random";
+				break;
+			case 72:
+//---multi-line string (sorry)
+				alert('\
+Shortcuts (holding shift key):\n\
+	a = trim image above\n\
+	b = trim image below\n\
+	r = random problem\n\
+	s (or down-arrow) = show solutions\n\
+	x (or up-arrow) = hide solutions\n\
+	right-arrow = next problem\n\
+	left-arrow = prev problem\n\
+	h = this help message!');
+//---
+		}
+	}
+}
+
+//enum
+var CROP_TYPE = {
+	ABOVE: { value: 0, name: "above", cursor: "crosshair"},
+	BELOW: { value: 1, name: "below", cursor: "crosshair"}
+};
+
+function cropTest(event,crop_type){
+	var y_clk; //= event.offsetY?(event.offsetY):event.pageY-document.getElementById("page_image").offsetTop;
+	//var x_clk = event.offsetX?(event.offsetX):event.pageX-document.getElementById("page_image").offsetTop;
+
+	//kid gloves for multiple browsers
+	try{
+		if(typeof event != 'undefined'){
+			y_clk = event.offsetY?(event.offsetY):event.layerY; //gecko vs. firefox
+		}
+		else{ //IE
+			y_clk = window.event.offsetY;
+		}
+	}
+	catch(e){
+		alert("Your browser is not supported. Please use a modern browser.");
+		return;
+	}
+
+	//prepend state variables
+	var url_string = "crop?";
+	
+	if(crop_type == CROP_TYPE.ABOVE){
+		url_string += crop_type.name+"="+y_clk;
+	}else if(crop_type == CROP_TYPE.BELOW){
+		//get image height
+		var height = document.getElementById("page_image").clientHeight;
+		url_string += crop_type.name+"="+(height-y_clk);
+		//alert(height);
+	}
+	//alert("You clicked: ("+x_clk+","+y_clk+")");
+	//send request
+	//alert(url_string);
+	window.location = url_string;
+}
+
+//activate crop mode
+function cropMode(crop_type){
+	//inform user
+	document.getElementById("message").innerHTML = "Click a point on the image "+crop_type.name+" which to crop.";
+
+	//set the event on the element
+	var picElement = document.getElementById("page_image");
+	picElement.onclick = function(event){ cropTest(event,crop_type) };
+	picElement.style.cursor=crop_type.cursor; //change cursor
+	
+	//set cancle button visible:
+	document.getElementById("cropCancel").style.display = "inline";
+}
+
+function cropCancel(){
+	var picElement = document.getElementById("page_image");
+	picElement.onclick = ""; //clear event handler
+	picElement.style.cursor=""; //default cursor
+	//hide canclel button:
+	document.getElementById("cropCancel").style.display = "none";
+	//set edit menu back to zero:
+	document.getElementById("editMenu").selectedIndex = 0;
+}
+
+function revertImage(){
+	var okay = confirm("Update image based on current/updated page values? This will also undo any custom image cropping.");
+	if(okay){
+		window.location="?update=1";
+	}
+	else{
+		//set edit menu back to zero
+		document.getElementById("editMenu").selectedIndex = 0;
+	}
+}
+</script>
+{% endblock %}
+
+{% block actions %}
+{% if problem.solution_pages %}
+	{# this is shown if the prblem has a tagged solution #}
+	{% if request.session.show_solution == "true" %}
+		<a href="?show_solution=false">Hide Solutions</a>
+	{% else %}
+		<a href="?show_solution=true">Show Solutions</a>
+	{% endif %}	
+{% else %}
+	(No Tagged Solution)
+{%endif%}
+
+{% if user.is_authenticated and perms.qualApp.change_problem %}
+	<select id = "editMenu" onchange="eval(this.options[this.selectedIndex].value);">
+	 <option>&gt; Edit</option>
+	{% if request.GET.sol %}
+	 <!--option disabled="disabled" style="background:darkgrey;">Solution:</option-->
+	 <option value='window.location="../../solutions/{{request.GET.sol}}/edit";' >Solution...</option>
+	{%else%}
+	 <!--option disabled="disabled" style="background:darkgrey;">Problem:</option-->
+	 <option value='window.location="edit";' >Problem...</option>
+	{% endif %}
+	{% if pic_url and not request.GET.sol %}{# double safe? #}
+	 <option disabled="disabled" style="/*background:darkgrey;*/">Image:</option>
+	 <option value="cropMode(CROP_TYPE.ABOVE);" >&nbsp;&nbsp;Trim Top (shift+a)</option>
+	 <!--option disabled="disabled" style="color:#666;">&nbsp;&nbsp;(shift+a)</option-->
+	 <option value="cropMode(CROP_TYPE.BELOW);" >&nbsp;&nbsp;Trim Bottom (shift+z)</option>
+	 <!--option disabled="disabled" style="color:#666;">&nbsp;&nbsp;(shift+z)</option-->
+	 <option value="revertImage();"             >&nbsp;&nbsp;Revert/Update</option>
+	{% endif %}
+	</select>
+	<span id="cropCancel" style="display:none;color:red;"><a onclick="cropCancel();">Cancel</a><span id="message" style="padding:0px 4px;"></span></span>
+{% endif %}
+
+{% if request.session.tag_mode == "on" %}
+	<fieldset>
+	<legend style="text-align:left;">Tagging Mode</legend>
+	 <a href="../../quals/{{problem.qual.id}}/tag">Continue</a>
+	 <a href="?tag_mode=off">Done</a>
+	</fieldset>
+{% else %}
+	{% if solution_list  %}{# and request.session.show_solution == "true" #}
+		<select id = "solutions_menu" onchange="window.location=eval(this.options[this.selectedIndex].value)">
+		 <option>&gt;Solutions</option>
+		 {# if request.GET.sol #}
+		 <option value="'?show_solution=true'">(Origional)</option>
+		 <option disabled="disabled">From Users:</option>
+		 {# endif #}
+		 {% for s in solution_list %}
+		  <option value="'?sol='+{{s.id}}">&nbsp;&nbsp;{{s.user.username|capfirst}}'s</option>
+		 {% endfor %}
+		 <option value="'add_solution'">Add Your Solution...</option>
+		</select>
+		<a href="javascript:window.print()">Print</a>
+	{% else %}
+		<a href="add_solution">Add Your Solution</a>
+		<a href="javascript:window.print()">Print</a>
+	{% endif %}
+	{% if prob_id_prev %}
+		<a id="prev_problem" href="../{{prob_id_prev}}">Prev.</a>
+	{%endif%}
+	{% if prob_id_next %}
+		<a id="next_problem"href="../{{prob_id_next}}">Next</a>
+	{%endif%}
+	<a href="../random">Random</a>
+{%endif%}
+{% endblock %}
+
+{% block content%}
+<div id="page_div">
+ {% if pic_url %}
+	<image id="page_image" src="{{ pic_url }}" />
+ {% endif %}{# for now: the only time when there is no pic url is when there is solution text for now #}
+ 
+ {% if solution_text %}{# use mathJax!! #}<hr />
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+	asciimath2jax: {
+		delimiters: [['`','`'], ['$','$']]
+	}
+  });
+</script>
+	<script type="text/javascript"
+	  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML">
+	</script>
+
+	<p style="padding:16px;margin:0px;font-family:Times New Roman,Serif;font-size:12pt;"><strong>Solution:</strong> {{ solution_text|force_escape|linebreaksbr }}{#just to be super safe#}</p><br />
+ {% endif %}
+ 
+ {% if sol_url %}
+	<image id="page_image" src="{{ sol_url }}" style="width:850px"/>
+ {% endif %}{# for now: the only time when there is no pic url is when there is solution text for now #}
+
+</div>
+<!--div>Text:{{prob_text}}</div-->
+{% endblock %}

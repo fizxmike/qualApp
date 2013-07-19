@@ -1,0 +1,49 @@
+{% extends "qualApp/base.html" %}
+
+{% block title %}{{ qual }}{% endblock %}
+{% block header %}{{ qual }}{% endblock %}
+
+{% block actions %}
+	<a href="browse">Browse</a>
+	<a href="{{ qual.pdf.url }}" target="_blank">Download</a>
+
+	{% if perms.qualApp.change_qual %}
+	<!--<a href="/qualApp/admin/qualApp/qual/{{ qual.id }}/">Edit</a>-->
+	<a href="edit">Edit</a>
+	{% endif %}
+
+	{% if perms.qualApp.add_problem %}
+		{% if qual.problem_set.count > 0 %}
+		<a href="tag">Tag More Problems</a>
+		{%else%}
+		<a href="tag">Start Tagging Problems</a>
+		{%endif%}
+	{% else %}
+	(Login To Tag Problems)
+	{% endif %}
+{% endblock %}
+
+
+{% block content %}
+	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+	{% if qual.problem_set.count > 0 %}
+	<table>
+	<tr><th>Level/Day</th><th>Subject</th><th>Topic/Short Description</th></tr>
+	{% for problem in problem_set %}
+		<tr class="clickable" onclick="window.location='../../problems/{{ problem.id }}';">
+			<td style="text-align:center;">{{ problem.level }}</td>
+			<td style="text-align:center;">{{ problem.subject }}</td>
+			<td><a href="../../problems/{{ problem.id }}/">{{ problem.topic }}</a></td>
+		</tr>
+	{% endfor %}
+	</table>
+	<!--<embed width="1000" height="700" src="{{ qual.pdf.url }}" />-->
+
+	{% else %}
+	<p><strong>This qual contains no tagged problems yet. Click "Browse" above to view the PDF.</strong></p>
+	{% if not user.is_authenticated %}
+	Login or <a href="/qualApp/accounts/create">create an account</a> to start contributing.
+	{% endif %}
+	{% endif %}
+{% endblock %}

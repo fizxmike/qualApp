@@ -1,0 +1,23 @@
+{% extends "qualApp/base.html" %}
+
+{% block scripts %}{% endblock %}
+
+{% block title %}Edit qual{% endblock %}
+
+{% block header %}Edit qual{% endblock %}
+
+{% block content %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+{% if not user.is_staff %}
+Contributors are not allowed to change the PDF of a qual once it has been uploaded since problems may have already been tagged. Please report a problem (see help section on home page) if something is wrong with this qual's PDF; please include the address of this page.
+{% else %}
+You may enter the admin site to edit the PDF if absolutely needed.
+{% endif %}
+
+<form enctype="multipart/form-data" action="" method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Submit" />
+</form>
+<p>To cancel, use your browser's back button.</p>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends "qualApp/base.html" %}
+{% block scripts %}
+<!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>-->
+<script>
+//add local storage to keep track of current page in qual?
+
+var currentPageNum = parseInt( {{ page }} );
+//var tot_pages = {{ tot_pages }};
+
+function initialize(){
+	//set up GLOBAL pointers/variables
+	PAGE_LIST = document.getElementById("page_list");
+	PAGE_IMAGE= document.getElementById("page_image");
+	
+	
+	{% if form %}{# only do this when the form is present (in tagging mode) #}
+		PROB_PAGES = document.getElementById("id_problem_pages");
+		SOL_PAGES = document.getElementById("id_solution_pages");
+		QUAL_KEY = "qual"+{{qual.id}};
+
+		
+		{% if page != 1 %}{# update recent problem to reflect current page #}
+			updateRecent('problem',{{recent_problem}}); //sent from server as global bookmark
+		{%endif%}
+		{% if sol != 1 %}
+			updateRecent('solution',{{recent_solution}}); //sent from server as global bookmark
+		{%endif%}
+		
+	{% endif %}
+}
+
+
+function updateCurrentPage(page_num,url){
+	currentPageNum = parseInt( page_num );
+	PAGE_LIST.innerHTML = "&nbsp;"+page_num+"&nbsp;";
+	PAGE_IMAGE.src=url;
+
+}
+
+function requestPage(page_num){try{
+	//save current image src before swap with loading image:
+	var currentImgSrc = PAGE_IMAGE.src;
+	_loading();
+	
+	//comense request
+	var xmlhttp = _createXMLObject();
+	xmlhttp.onreadystatechange=function()
+	{
+		if (xmlhttp.readyState==4 && xmlhttp.status==200){
+			//normal operation
+			//alert(xmlhttp.responseText);
+			updateCurrentPage(page_num,xmlhttp.responseText);
+		}
+		else if (xmlhttp.readyState==4 && xmlhttp.status==403){
+			//server error
+			alert(xmlhttp.responseText);
+			updateCurrentPage(currentPageNum,currentImgSrc); //don't change anything
+		}
+		else if (xmlhttp.readyState==4 && xmlhttp.status==400){
+			//bad request (image out of bounds etc)
+			alert("Document Boundary Reached");
+			updateCurrentPage(currentPageNum,currentImgSrc); //don't change anything
+		}
+	}
+	xmlhttp.open("GET","changePage?page="+page_num,false); //false = not asyncronous
+	xmlhttp.send();
+}catch(e){alert(e)}}
+
+function nextPage(){
+	//var reqPage = parseInt(currentPageNum)+1;
+	requestPage(currentPageNum+1);
+}
+
+function prevPage(){
+	//var reqPage = parseInt(currentPageNum)-1;
+	requestPage(currentPageNum-1);
+}
+
+function jumpTo(){
+	//TODO: add input checking
+	var page = prompt('Jump To Page (enter page number):');
+	
+	if( _isNumber(page) ){
+		if( parseInt(page) < 1 ){
+			page = 1;
+		}
+		requestPage( page );
+	}
+	else{
+		if(page != null){
+			alert("'"+page+"' is not a valid page number, please try again.");
+		}
+	}
+}
+
+function tag(){
+	window.location="tag?page="+currentPageNum;
+}
+
+{% if form %} {# functions used when form is present #}
+
+function addAsProblem(){
+	PROB_PAGES.value += ','+currentPageNum;
+	//clean any leading characters that are not numbers
+	PROB_PAGES.value = PROB_PAGES.value.replace(/^[^0-9]*/g,"");
+}
+function addAsSolution(){
+	SOL_PAGES.value += ','+currentPageNum;
+	//clean any leading characters that are not numbers
+	SOL_PAGES.value = SOL_PAGES.value.replace(/^[^0-9]*/g,"");
+}
+function cleanAndSubmit(){
+	//remove any leading characters that are not numbers (should do this in view as well)
+	SOL_PAGES.value = SOL_PAGES.value.replace(/^[^0-9]*/g,"");
+	PROB_PAGES.value = PROB_PAGES.value.replace(/^[^0-9]*/g,"");
+	document.forms['tag_form'].submit();
+}
+function jumpToRecent(keyString){
+/** set current page to recent value stored in local storage **/
+	var queryString = localStorage[QUAL_KEY+keyString];	
+	if(queryString == undefined){
+		alert("You have not tagged any pages as "+keyString+"s yet.")
+	}
+	else{
+		requestPage(parseInt(queryString));
+	}
+}
+
+function updateRecent(keyString,value){
+	/** update local storage with a given value (handled on server now)**/
+	localStorage[QUAL_KEY+keyString] = value;
+}
+
+{% endif %}
+
+//--helpers--
+function _isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+function _loading(){
+	PAGE_IMAGE.src = "/files/qualApp/loading.gif";	
+}
+
+function _createXMLObject(){
+	try{
+		if (window.XMLHttpRequest) {
+			var xmlhttp = new XMLHttpRequest();
+		}
+		// code for IE
+		else if (window.ActiveXObject) {
+			var xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+	}catch(e){
+		alert(e);
+		var xmlhttp = false;
+	}
+	return xmlhttp;
+}
+
+</script>
+{% endblock %}
+
+{% block title %}Browse{% endblock %}
+
+{% block header %}
+	{% if form %}
+	Tagging Problem in 
+	{%endif%}
+<a class="hide_visited" href="../{{qual.id}}">{{qual}}</a>
+	{% if form %}
+	Qual
+	{%endif%}
+<br />
+{% endblock %}
+
+{% block actions %}
+	{% if not form %} {#show regular browsing interface #}
+	<fieldset style="display:inline;text-align:center"> 
+	<legend style="text-align:left;">PDF Page</legend>
+	 <a id="page_list" onclick="jumpTo()" style="/*color:darkred;*/">&nbsp;{{page}}&nbsp;</a>
+	 <a onclick="prevPage()">Prev.</a> <!--&nbsp;&lt;&nbsp;</a>-->
+	 <a onclick="nextPage()">Next</a> <!--&nbsp;&gt;&nbsp;</a>-->
+	</fieldset>
+		{% if user.is_authenticated %}
+			&nbsp; <a onclick="tag()">Tag Problem</a><!-- = {{ testVar }} -->
+		{% else %}
+			(Login To Tag Problems)
+		{% endif %}
+	{% endif %}
+{% endblock %}
+
+{% block content%}
+{% if form %}
+	<form id="tag_form" action="tag" method="post">{% csrf_token %}
+	{{ form.non_field_errors }}
+	<fieldset style="width:826px;text-align:center;">
+	<legend style="font-weight:bold;text-align:left;">Problem Details</legend>
+	{{ form.level.label_tag }}: {{ form.level }} {{ form.level.errors}}
+	{{ form.subject.label_tag }}: {{ form.subject }} {{ form.subject.errors}} 
+	<br />
+	{{ form.topic.label_tag }}: {{ form.topic }} {{ form.topic.help_text }}
+	</fieldset>
+	<fieldset style="width:826px;text-align:center;">
+	<legend style="font-weight:bold;text-align:left;">Tagged Pages</legend>
+	{{ form.problem_pages.label_tag }}: {{ form.problem_pages }} {{ form.problem_pages.errors }}&nbsp;
+	{{ form.solution_pages.label_tag }}: {{ form.solution_pages }} {{ form.solution_pages.errors }}
+	<br /><div style="text-align:center;font-style:italic;width:850px;"><strong>Note:</strong> Ignore page numbers in images. The true PDF page number is shown in the button below.
+	<br />(Examples: "19" for single page, "20,21,22" for page range)</div>
+	</fieldset>
+	</form>
+
+<div class="actions" style="width:850px">
+	<fieldset> 
+	<legend style="text-align:left;">Current PDF Page</legend>
+	 <a id="page_list" onclick="jumpTo()" style="/*color:darkred;*/">&nbsp;{{page}}&nbsp;</a>
+	 <a onclick="prevPage()">Prev.</a> <!--&nbsp;&lt;&nbsp;</a>-->
+	 <a onclick="nextPage()">Next</a> <!--&nbsp;&gt;&nbsp;</a>-->
+	</fieldset>
+	<fieldset> 
+	 <legend style="text-align:left;">Tag Current Page</legend> 
+	 <a onclick="addAsProblem()">Problem</a>
+	 <a onclick="addAsSolution()">Solution</a>
+	</fieldset>
+	<fieldset style="display:inline;text-align:center"> 
+	 <legend style="text-align:left;">Jump To Recent</legend>
+	 <a onclick="jumpToRecent('problem')">Problem</a>
+	 <a onclick="jumpToRecent('solution')">Solution</a>
+	</fieldset>
+ &nbsp; <a onclick="cleanAndSubmit();">SAVE PROBLEM</a>
+</div>
+<br />
+{% endif %}
+<div id="page_div">
+ <image id="page_image" src="{{ page_url }}" />
+ <script>initialize();</script>
+</div>
+{% endblock %}

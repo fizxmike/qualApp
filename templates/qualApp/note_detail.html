@@ -1,0 +1,74 @@
+{% extends "qualApp/base.html" %}
+
+{% block title %}Note: {{ note.subject }}{{ note.id }}{% endblock %}
+
+{% block header %}
+	{% comment %}
+	{%if note.user%}<a class="hide_visited" href="user{{note.user.id}}">{{note.user|lower|capfirst}}'s</a> {%endif%}
+	{%endcomment%}
+	{{ note.subject }} Notes: <br />
+	{{note.topic}}
+{% endblock %}
+
+
+{% block scripts %}
+{% endblock %}
+
+{% block actions %}
+{% if user.is_authenticated and perms.qualApp.change_note %}
+	<select id = "editMenu" onchange="eval(this.options[this.selectedIndex].value);">
+	 <option>&gt; Edit</option>
+	 <!--option disabled="disabled" style="background:darkgrey;">Solution:</option-->
+	 <option value='window.location="edit";' >Notes...</option>
+	</select>
+{% endif %}
+
+{% if note_list  %}{# and request.session.show_solution == "true" #}
+	<select id = "solutions_menu" onchange="window.location=eval(this.options[this.selectedIndex].value)">
+	 <option>&gt;Solutions</option>
+	 {# if request.GET.sol #}
+	 <option value="'?show_solution=true'">(Origional)</option>
+	 <option disabled="disabled">From Users:</option>
+	 {# endif #}
+	 {% for s in solution_list %}
+	  <option value="'?sol='+{{s.id}}">&nbsp;&nbsp;{{s.user.username|capfirst}}'s</option>
+	 {% endfor %}
+	 <option value="'add_solution'">Add Your Solution...</option>
+	</select>
+	<a href="javascript:window.print()">Print</a>
+{% else %}
+	<a href="../create">Add Your Notes</a>
+	<a href="javascript:window.print()">Print</a>
+{% endif %}
+
+{% if prob_id_prev %}
+	<a id="prev_problem" href="../{{prob_id_prev}}">Prev.</a>
+{%endif%}
+{% if prob_id_next %}
+	<a id="next_problem"href="../{{prob_id_next}}">Next</a>
+{%endif%}
+
+{% endblock %}
+
+{% block content%}
+<div id="page_div">
+{# use mathJax!! #}
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+	asciimath2jax: {
+		delimiters: [['`','`'], ['$','$']]
+	}
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML">
+</script>
+
+	<p style="padding:16px;margin:0px;font-family:Times New Roman,Serif;font-size:12pt;">{{ note.TeX|force_escape|linebreaksbr }}{#just to be super safe#}</p><br />
+
+</div>
+{% endblock %}

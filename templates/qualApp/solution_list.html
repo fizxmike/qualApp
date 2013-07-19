@@ -1,0 +1,38 @@
+{% extends "qualApp/base.html" %}
+
+{% block title %}Student Solutions{% endblock %}
+{% block header %} 
+{%if by_user%}
+Alternative Solutions by {{by_user.username|capfirst}}
+{%else%}
+All Student-Submitted/Alternative Solutions{%endif%}
+{% endblock %}
+
+{% block actions %}
+	{% if request.user.is_authenticated %}
+	<a href="../solutions">All</a>
+	<a href="user{{ request.user.id }}">My Solutions</a>
+	{% endif %}
+{%endblock%}
+
+{% block content %}
+{% if solution_list %}
+	<table>
+	<tr><th>User</th><th>Qual</th><th>Problem Topic: Short Description</th></tr>
+	{% for solution in solution_list %}	
+		<tr class="clickable" onclick="window.location='../problems/{{solution.problem.id}}/?show_solution=true&sol={{ solution.id }}';">
+			<td style="text-align:center;">{{ solution.user.username|capfirst }}</td>
+			<td style="text-align:center;">{{ solution.problem.qual }}</td>
+			<td><a href="../problems/{{solution.problem.id}}/?show_solution=true&sol={{ solution.id }}">{{ solution.problem }}</a></td>
+		</tr>
+	{% endfor %}
+	</table>
+{% else %}
+	{%if request.GET.q %}
+	<p>Your search for &quot;<strong>{{ request.GET.q }}</strong>&quot; in solution topics had no results.</p>
+    {%else%}
+    <p>No solutions found.</p>
+    {%endif%}
+{% endif %}
+
+{% endblock %}

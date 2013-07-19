@@ -1,0 +1,30 @@
+{% extends "qualApp/base.html" %}
+{% load url from future %}
+
+{% block title %}Create Account{% endblock %}
+{% block header %}Create a "contributor" account{% endblock %}
+{% block navigation %}{% endblock %}
+
+{% block content %}
+
+{% if success %}
+
+<p><strong>{{ success }}</strong></p>
+<p>You may now close this window and check the confirmation e-mail for further instructions.</p>
+
+{% else %}
+
+<p>Contributors are allowed to upload new quals, tag and edit qual problems, submit solutions, and create notes.</p>
+<p>For security, membership is limited to those with @physics.ucsd.edu e-mail accounts. <br />
+For simplicity, your username for this site will be the same as your physics username (currently, you cannot change your username, but this feature may be added in the future). </p>
+<p>Please enter your physics username below and a confirmation e-mail will be sent to the associated e-mail address.</p>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<form action="/qualApp/accounts/create/" method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Submit" />
+</form>
+
+{% endif %}
+
+{% endblock %}

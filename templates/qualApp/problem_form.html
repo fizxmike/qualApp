@@ -1,0 +1,20 @@
+{% extends "qualApp/base.html" %}
+
+{% block scripts %}{% endblock %}
+
+{% block title %}Editing problem in {{ qual_str }}{% endblock %}
+
+{% block header %}
+Editing Problem in <a class="hide_visited" href="/qualApp/quals/{{ qual_id }}/" target="blank">{{ qual_str }}</a> qual
+{% endblock %}
+
+{% block content %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="" method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Submit" />
+</form>
+
+<p>To cancel, use your browser's back button.</p>
+{% endblock %}

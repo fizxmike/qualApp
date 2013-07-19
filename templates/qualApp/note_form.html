@@ -1,0 +1,96 @@
+{% extends "qualApp/base.html" %}
+
+{% block scripts %}
+<script>
+
+function preview(){
+	user_text = document.getElementById("id_TeX").value;
+	//taking care of HTLM clashes 
+	//this removes HTML tags and helps MathJax parse greater than and less than signs
+	user_text = user_text.replace(/</g," < ")
+	user_text = user_text.replace(/>/g," > ")
+	user_text = user_text.replace(/(\r\n|\n|\r)/gm,"<br />\n");//line breaks to <br />
+	var w = window.open('', 'TeX Preview', 'width=850,height=550,resizeable,scrollbars');
+	w.document.write(HEAD + user_text + FOOT);
+	w.document.close(); // needed for chrome and safari
+}
+
+
+var HEAD="<html><head><"
+HEAD+="script type='text/x-mathjax-config'> \
+ MathJax.Hub.Config({ \
+    tex2jax: { \
+      inlineMath: [ ['$','$'], ['\\\\(','\\\\)'] ], \
+      displayMath: [ ['$$','$$'], ['\\\\[','\\\\]'] ], \
+      processEscapes: true \
+    }, \
+	asciimath2jax: { \
+		delimiters: [['`','`'], ['$','$']] \
+	} \
+  });";
+HEAD+="<"
+HEAD+="/script><"
+HEAD+="script type='text/javascript' src='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML' >"
+HEAD+="</" //had to break this up so browser won't trip!
+HEAD+="script>"
+
+"</head><body>";
+var FOOT="<button style='position:fixed;bottom:5px;right:5px;' onclick='window.close()'>CLOSE</button></body></html>";
+</script>
+
+<style type="text/css">
+.eq{
+	background:white;
+	padding:2px;
+	font-family:Monospace,Courier New;
+}
+.italic{
+	font-style:oblique;
+}
+</style>
+{% endblock %}
+
+{% block title %}Create/Edit Solution in {{ qual_str }}{% endblock %}
+
+{% block header %}
+{% if create %}
+Adding Note
+{% else %}
+Editing Note: {{object.topic}}
+{%endif%}
+{% endblock %}
+
+{% block content %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="" method="post">{% csrf_token %}
+{{ form.non_field_errors }}
+<ul>
+	<li><strong>{{ form.subject.label_tag }}</strong>: {{ form.subject }} {{form.subject.help_text}} {{ form.subject.errors }}</li><li><strong>{{ form.topic.label_tag }}</strong>: {{ form.topic }} {{form.topic.help_text}} {{ form.topic.errors }}</li>
+	<li><strong>{{ form.TeX.label_tag }}:</strong> <span style="font-style:oblique">{{form.TeX.help_text}}</span><br />
+	{{ form.TeX }}<br />
+	<div class="actions" style="margin:4px"><a onclick="preview()">Preview TeX (PopUp)</a><a onclick="document.getElementById('help').style.display='block';">Help</a></div></li>
+
+	<blockquote id="help" style="display:none">
+		<span class="italic">Surround LaTeX/TeX code with dollar signs for inline math or double dollar signs for a math block.</span><br />
+		<span class="italic">Ex: </span><span class="eq">$E=mc^2$</span> <span class="italic">for inline math, 
+		 or </span><span class="eq">$$x=\frac{-b\pm\sqrt{b^2-4a c}}{2a}$$</span><span class="italic"> for a block of math.<br />
+		The standard LaTeX/TeX command for an equation array works too, for example:</span><br />
+		<div class="eq" style="width:24ex">
+			\begin{array}{cc}<br />
+			&nbsp;&nbsp;a &amp; b \\<br />
+			&nbsp;&nbsp;c &amp; c<br />
+			\end{array}
+		</div>
+		<span class="italic">ASCIIMath is also supported with backticks "`...`" (left of the 1 key) ex: </span> <span class="eq">`x^2+y_1+z_12^34/10^12`</span><br />
+		<span class="italic">Line breaks (returns) will automatically be rendered to HTML tags when displayed.<br />Copy and paste the above examples into the text box and click preview to see for yourself!<br /><br />
+		This feature is browser dependent, more info can be found here: <a href="http://www.mathjax.org/docs/2.0/tex.html" target="_blank">MathJax TeX and LaTeX Support</a> and <a href="http://www1.chapman.edu/~jipsen/mathml/asciimath.html">ASCIIMath</a>.</span>
+		<!--div class="actions" style="margin:4px"><a onclick="document.getElementById('help').style.display='none';">Hide</a></div-->
+		</li>
+	</blockquote>
+	<li><strong>{{ form.private.label_tag }}:</strong> {{ form.private }} <span style="font-style:oblique">{{ form.private.help_text }}</span></li>
+</ul>
+<input type="submit" value="Save" />
+</form>
+<p>To cancel, use your browser's back button.</p>
+{% endblock %}
