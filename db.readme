@@ -1,7 +1,10 @@
+The current backup of the "production" database can downloaded using:
+wget http://physics.ucsd.edu/~mfolkerts/qualapp/db.7z
+
 The database has been encrypted:
 7za a -p db.7z db.sqlite3
 
 To decrypt and expand:
 7za e db.7z
 
-hint: cluster expansion
+contact project owner for password.
