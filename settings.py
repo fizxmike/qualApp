@@ -1,8 +1,8 @@
 # Django settings for qualPrep project.
 
-PATH_TO_PROJECT = '/home/django/qualApp/'
-TEMPORARY_ROOT = '/home/django/qualApp/db.files/tmp/'
-ROOT_URLCONF = 'qualApp.urls'
+PATH_TO_PROJECT = '/home/michael/git/qualSite/'
+TEMPORARY_ROOT = PATH_TO_PROJECT + 'db.files/tmp/'
+ROOT_URLCONF = 'qualSite.urls'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -96,7 +96,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-	"/home/django/qualPrep/db.files",
+	PATH_TO_PROJECT + "db.files",
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
