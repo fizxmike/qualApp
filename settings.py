@@ -2,7 +2,7 @@
 
 PATH_TO_PROJECT = '/home/michael/git/qualSite/'
 TEMPORARY_ROOT = PATH_TO_PROJECT + 'db.files/tmp/'
-ROOT_URLCONF = 'qualSite.urls'
+ROOT_URLCONF = 'qualSite.urls' #should be in the format (name of root folder).urls where root folder name is NOT qualApp
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG

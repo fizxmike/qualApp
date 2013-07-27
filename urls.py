@@ -8,11 +8,18 @@ if not model_cache.loaded:
 
 admin.autodiscover()
 
+dev_mode = True
+url_prefix = "qualApp"
+
+if not dev_mode:
+	url_prefix = '' #this is blank when running from Apache
+
+
 urlpatterns = patterns('',
 	# Examples:
 	# url(r'^$', 'qualPrep.views.home', name='home'),
 	
-	url(r'^/*', include('qualApp.urls')),
+	url(r'^'+url_prefix+'/*', include('qualApp.urls')),
 	
 	# Uncomment the admin/doc line below to enable admin documentation:
 	# url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
